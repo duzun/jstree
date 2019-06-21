@@ -32,19 +32,20 @@
 	};
 	$.jstree.plugins.sort = function (options, parent) {
 		this.bind = function () {
-			parent.bind.call(this);
-			this.element
-				.on("model.jstree", $.proxy(function (e, data) {
-						this.sort(data.parent, true);
-					}, this))
-				.on("rename_node.jstree create_node.jstree", $.proxy(function (e, data) {
-						this.sort(data.parent || data.node.parent, false);
-						this.redraw_node(data.parent || data.node.parent, true);
-					}, this))
-				.on("move_node.jstree copy_node.jstree", $.proxy(function (e, data) {
-						this.sort(data.parent, false);
-						this.redraw_node(data.parent, true);
-					}, this));
+			var inst = this;
+			parent.bind.call(inst);
+			inst.element
+				.on("model.jstree", function (e, data) {
+						inst.sort(data.parent, true);
+					})
+				.on("rename_node.jstree create_node.jstree", function (e, data) {
+						inst.sort(data.parent || data.node.parent, false);
+						inst.redraw_node(data.parent || data.node.parent, true);
+					})
+				.on("move_node.jstree copy_node.jstree", function (e, data) {
+						inst.sort(data.parent, false);
+						inst.redraw_node(data.parent, true);
+					});
 		};
 		/**
 		 * used to sort a node's children

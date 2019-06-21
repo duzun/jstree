@@ -139,6 +139,7 @@
 			if(str === false || $.trim(str.toString()) === "") {
 				return this.clear_search();
 			}
+			var inst = this;
 			inside = this.get_node(inside);
 			inside = inside && inside.id ? inside.id : null;
 			str = str.toString();
@@ -159,12 +160,12 @@
 			}
 			if(!skip_async && a !== false) {
 				if($.isFunction(a)) {
-					return a.call(this, str, $.proxy(function (d) {
+					return a.call(inst, str, function (d) {
 							if(d && d.d) { d = d.d; }
-							this._load_nodes(!$.isArray(d) ? [] : $.vakata.array_unique(d), function () {
-								this.search(str, true, show_only_matches, inside, append, show_only_matches_children);
+							inst._load_nodes(!$.isArray(d) ? [] : $.vakata.array_unique(d), function () {
+								inst.search(str, true, show_only_matches, inside, append, show_only_matches_children);
 							});
-						}, this), inside);
+						}, inside);
 				}
 				else {
 					a = $.extend({}, a);
@@ -177,17 +178,17 @@
 						this._data.search.lastRequest.abort();
 					}
 					this._data.search.lastRequest = $.ajax(a)
-						.fail($.proxy(function () {
-							this._data.core.last_error = { 'error' : 'ajax', 'plugin' : 'search', 'id' : 'search_01', 'reason' : 'Could not load search parents', 'data' : JSON.stringify(a) };
-							this.settings.core.error.call(this, this._data.core.last_error);
-						}, this))
-						.done($.proxy(function (d) {
+						.fail(function () {
+							inst._data.core.last_error = { 'error' : 'ajax', 'plugin' : 'search', 'id' : 'search_01', 'reason' : 'Could not load search parents', 'data' : JSON.stringify(a) };
+							inst.settings.core.error.call(inst, inst._data.core.last_error);
+						})
+						.done(function (d) {
 							if(d && d.d) { d = d.d; }
-							this._load_nodes(!$.isArray(d) ? [] : $.vakata.array_unique(d), function () {
-								this.search(str, true, show_only_matches, inside, append, show_only_matches_children);
+							inst._load_nodes(!$.isArray(d) ? [] : $.vakata.array_unique(d), function () {
+								inst.search(str, true, show_only_matches, inside, append, show_only_matches_children);
 							});
-						}, this));
-					return this._data.search.lastRequest;
+						});
+					return inst._data.search.lastRequest;
 				}
 			}
 			if(!append) {

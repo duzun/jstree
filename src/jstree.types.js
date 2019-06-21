@@ -65,11 +65,12 @@
 			this._model.data[$.jstree.root].type = $.jstree.root;
 		};
 		this.bind = function () {
+			var inst = this;
 			this.element
-				.on('model.jstree', $.proxy(function (e, data) {
-						var m = this._model.data,
+				.on('model.jstree', function (e, data) {
+						var m = inst._model.data,
 							dpc = data.nodes,
-							t = this.settings.types,
+							t = inst.settings.types,
 							i, j, c = 'default', k;
 						for(i = 0, j = dpc.length; i < j; i++) {
 							c = 'default';
@@ -118,8 +119,8 @@
 							}
 						}
 						m[$.jstree.root].type = $.jstree.root;
-					}, this));
-			parent.bind.call(this);
+					});
+			parent.bind.call(inst);
 		};
 		this.get_json = function (obj, options, flat) {
 			var i, j,
