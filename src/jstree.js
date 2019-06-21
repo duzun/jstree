@@ -724,6 +724,7 @@
 		 * @name bind()
 		 */
 		bind : function () {
+			var inst = this;
 			var word = '',
 				tout = null,
 				was_click = 0;
@@ -780,48 +781,48 @@
 							}
 						}
 					}, this))
-				.on("load_node.jstree", $.proxy(function (e, data) {
+				.on("load_node.jstree", function (e, data) {
 						if(data.status) {
-							if(data.node.id === $.jstree.root && !this._data.core.loaded) {
-								this._data.core.loaded = true;
-								if(this._firstChild(this.get_container_ul()[0])) {
-									this.element.attr('aria-activedescendant',this._firstChild(this.get_container_ul()[0]).id);
+							if(data.node.id === $.jstree.root && !inst._data.core.loaded) {
+								inst._data.core.loaded = true;
+								if(inst._firstChild(inst.get_container_ul()[0])) {
+									inst.element.attr('aria-activedescendant',inst._firstChild(inst.get_container_ul()[0]).id);
 								}
 								/**
 								 * triggered after the root node is loaded for the first time
 								 * @event
 								 * @name loaded.jstree
 								 */
-								this.trigger("loaded");
+								inst.trigger("loaded");
 							}
-							if(!this._data.core.ready) {
-								setTimeout($.proxy(function() {
-									if(this.element && !this.get_container_ul().find('.jstree-loading').length) {
-										this._data.core.ready = true;
-										if(this._data.core.selected.length) {
-											if(this.settings.core.expand_selected_onload) {
+							if(!inst._data.core.ready) {
+								setTimeout(function() {
+									if(inst.element && !inst.get_container_ul().find('.jstree-loading').length) {
+										inst._data.core.ready = true;
+										if(inst._data.core.selected.length) {
+											if(inst.settings.core.expand_selected_onload) {
 												var tmp = [], i, j;
-												for(i = 0, j = this._data.core.selected.length; i < j; i++) {
-													tmp = tmp.concat(this._model.data[this._data.core.selected[i]].parents);
+												for(i = 0, j = inst._data.core.selected.length; i < j; i++) {
+													tmp = tmp.concat(inst._model.data[inst._data.core.selected[i]].parents);
 												}
 												tmp = $.vakata.array_unique(tmp);
 												for(i = 0, j = tmp.length; i < j; i++) {
-													this.open_node(tmp[i], false, 0);
+													inst.open_node(tmp[i], false, 0);
 												}
 											}
-											this.trigger('changed', { 'action' : 'ready', 'selected' : this._data.core.selected });
+											inst.trigger('changed', { 'action' : 'ready', 'selected' : inst._data.core.selected });
 										}
 										/**
 										 * triggered after all nodes are finished loading
 										 * @event
 										 * @name ready.jstree
 										 */
-										this.trigger("ready");
+										inst.trigger("ready");
 									}
-								}, this), 0);
+								}, 0);
 							}
 						}
-					}, this))
+					})
 				// quick searching when the tree is focused
 				.on('keypress.jstree', $.proxy(function (e) {
 						if(e.target.tagName && e.target.tagName.toLowerCase() === "input") { return true; }
@@ -838,45 +839,45 @@
 
 						// match for whole word from current node down (including the current node)
 						if(word.length > 1) {
-							col.slice(ind).each($.proxy(function (i, v) {
+							col.slice(ind).each(function (i, v) {
 								if($(v).text().toLowerCase().indexOf(word) === 0) {
 									$(v).focus();
 									end = true;
 									return false;
 								}
-							}, this));
+							});
 							if(end) { return; }
 
 							// match for whole word from the beginning of the tree
-							col.slice(0, ind).each($.proxy(function (i, v) {
+							col.slice(0, ind).each(function (i, v) {
 								if($(v).text().toLowerCase().indexOf(word) === 0) {
 									$(v).focus();
 									end = true;
 									return false;
 								}
-							}, this));
+							});
 							if(end) { return; }
 						}
 						// list nodes that start with that letter (only if word consists of a single char)
 						if(new RegExp('^' + chr.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&') + '+$').test(word)) {
 							// search for the next node starting with that letter
-							col.slice(ind + 1).each($.proxy(function (i, v) {
+							col.slice(ind + 1).each(function (i, v) {
 								if($(v).text().toLowerCase().charAt(0) === chr) {
 									$(v).focus();
 									end = true;
 									return false;
 								}
-							}, this));
+							});
 							if(end) { return; }
 
 							// search from the beginning
-							col.slice(0, ind + 1).each($.proxy(function (i, v) {
+							col.slice(0, ind + 1).each(function (i, v) {
 								if($(v).text().toLowerCase().charAt(0) === chr) {
 									$(v).focus();
 									end = true;
 									return false;
 								}
-							}, this));
+							});
 							if(end) { return; }
 						}
 					}, this))
@@ -890,12 +891,12 @@
 						this.set_theme(s.name || "default", s.url);
 						this.set_theme_variant(s.variant);
 					}, this))
-				.on("loading.jstree", $.proxy(function () {
-						this[ this._data.core.themes.dots ? "show_dots" : "hide_dots" ]();
-						this[ this._data.core.themes.icons ? "show_icons" : "hide_icons" ]();
-						this[ this._data.core.themes.stripes ? "show_stripes" : "hide_stripes" ]();
-						this[ this._data.core.themes.ellipsis ? "show_ellipsis" : "hide_ellipsis" ]();
-					}, this))
+				.on("loading.jstree", function () {
+						inst[ inst._data.core.themes.dots ? "show_dots" : "hide_dots" ]();
+						inst[ inst._data.core.themes.icons ? "show_icons" : "hide_icons" ]();
+						inst[ inst._data.core.themes.stripes ? "show_stripes" : "hide_stripes" ]();
+						inst[ inst._data.core.themes.ellipsis ? "show_ellipsis" : "hide_ellipsis" ]();
+					})
 				.on('blur.jstree', '.jstree-anchor', $.proxy(function (e) {
 						this._data.core.focused = null;
 						$(e.currentTarget).filter('.jstree-hovered').trigger('mouseleave');
@@ -1421,6 +1422,7 @@
 		 * @return {Boolean}
 		 */
 		_load_node : function (obj, callback) {
+			var inst = this;
 			var s = this.settings.core.data, t;
 			var notTextOrCommentNode = function notTextOrCommentNode () {
 				return this.nodeType !== 3 && this.nodeType !== 8;
@@ -1428,9 +1430,7 @@
 			// use original HTML
 			if(!s) {
 				if(obj.id === $.jstree.root) {
-					return this._append_html_data(obj, this._data.core.original_container_html.clone(true), function (status) {
-						callback.call(this, status);
-					});
+					return this._append_html_data(obj, this._data.core.original_container_html.clone(true), callback);
 				}
 				else {
 					return callback.call(this, false);
@@ -1438,17 +1438,15 @@
 				// return callback.call(this, obj.id === $.jstree.root ? this._append_html_data(obj, this._data.core.original_container_html.clone(true)) : false);
 			}
 			if($.isFunction(s)) {
-				return s.call(this, obj, $.proxy(function (d) {
+				return s.call(inst, obj, function (d) {
 					if(d === false) {
-						callback.call(this, false);
+						callback.call(inst, false);
 					}
 					else {
-						this[typeof d === 'string' ? '_append_html_data' : '_append_json_data'](obj, typeof d === 'string' ? $($.parseHTML(d)).filter(notTextOrCommentNode) : d, function (status) {
-							callback.call(this, status);
-						});
+						inst[typeof d === 'string' ? '_append_html_data' : '_append_json_data'](obj, typeof d === 'string' ? $($.parseHTML(d)).filter(notTextOrCommentNode) : d, callback);
 					}
-					// return d === false ? callback.call(this, false) : callback.call(this, this[typeof d === 'string' ? '_append_html_data' : '_append_json_data'](obj, typeof d === 'string' ? $(d) : d));
-				}, this));
+					// return d === false ? callback.call(inst, false) : callback.call(inst, inst[typeof d === 'string' ? '_append_html_data' : '_append_json_data'](obj, typeof d === 'string' ? $(d) : d));
+				});
 			}
 			if(typeof s === 'object') {
 				if(s.url) {
@@ -1460,25 +1458,25 @@
 						s.data = s.data.call(this, obj);
 					}
 					return $.ajax(s)
-						.done($.proxy(function (d,t,x) {
+						.done(function (d,t,x) {
 								var type = x.getResponseHeader('Content-Type');
 								if((type && type.indexOf('json') !== -1) || typeof d === "object") {
-									return this._append_json_data(obj, d, function (status) { callback.call(this, status); });
-									//return callback.call(this, this._append_json_data(obj, d));
+									return inst._append_json_data(obj, d, callback);
+									//return callback.call(inst, inst._append_json_data(obj, d));
 								}
 								if((type && type.indexOf('html') !== -1) || typeof d === "string") {
-									return this._append_html_data(obj, $($.parseHTML(d)).filter(notTextOrCommentNode), function (status) { callback.call(this, status); });
-									// return callback.call(this, this._append_html_data(obj, $(d)));
+									return inst._append_html_data(obj, $($.parseHTML(d)).filter(notTextOrCommentNode), callback);
+									// return callback.call(inst, inst._append_html_data(obj, $(d)));
 								}
-								this._data.core.last_error = { 'error' : 'ajax', 'plugin' : 'core', 'id' : 'core_04', 'reason' : 'Could not load node', 'data' : JSON.stringify({ 'id' : obj.id, 'xhr' : x }) };
-								this.settings.core.error.call(this, this._data.core.last_error);
-								return callback.call(this, false);
-							}, this))
-						.fail($.proxy(function (f) {
-								this._data.core.last_error = { 'error' : 'ajax', 'plugin' : 'core', 'id' : 'core_04', 'reason' : 'Could not load node', 'data' : JSON.stringify({ 'id' : obj.id, 'xhr' : f }) };
-								callback.call(this, false);
-								this.settings.core.error.call(this, this._data.core.last_error);
-							}, this));
+								inst._data.core.last_error = { 'error' : 'ajax', 'plugin' : 'core', 'id' : 'core_04', 'reason' : 'Could not load node', 'data' : JSON.stringify({ 'id' : obj.id, 'xhr' : x }) };
+								inst.settings.core.error.call(inst, inst._data.core.last_error);
+								return callback.call(inst, false);
+							})
+						.fail(function (f) {
+								inst._data.core.last_error = { 'error' : 'ajax', 'plugin' : 'core', 'id' : 'core_04', 'reason' : 'Could not load node', 'data' : JSON.stringify({ 'id' : obj.id, 'xhr' : f }) };
+								callback.call(inst, false);
+								inst.settings.core.error.call(inst, inst._data.core.last_error);
+							});
 				}
 				if ($.isArray(s)) {
 					t = $.extend(true, [], s);
@@ -1488,9 +1486,7 @@
 					t = s;
 				}
 				if(obj.id === $.jstree.root) {
-					return this._append_json_data(obj, t, function (status) {
-						callback.call(this, status);
-					});
+					return this._append_json_data(obj, t, callback);
 				}
 				else {
 					this._data.core.last_error = { 'error' : 'nodata', 'plugin' : 'core', 'id' : 'core_05', 'reason' : 'Could not load node', 'data' : JSON.stringify({ 'id' : obj.id }) };
@@ -1501,9 +1497,7 @@
 			}
 			if(typeof s === 'string') {
 				if(obj.id === $.jstree.root) {
-					return this._append_html_data(obj, $($.parseHTML(s)).filter(notTextOrCommentNode), function (status) {
-						callback.call(this, status);
-					});
+					return this._append_html_data(obj, $($.parseHTML(s)).filter(notTextOrCommentNode), callback);
 				}
 				else {
 					this._data.core.last_error = { 'error' : 'nodata', 'plugin' : 'core', 'id' : 'core_06', 'reason' : 'Could not load node', 'data' : JSON.stringify({ 'id' : obj.id }) };
@@ -1538,6 +1532,7 @@
 			dom = this.get_node(dom);
 			dom.children = [];
 			dom.children_d = [];
+			var inst = this;
 			var dat = data.is('ul') ? data.children() : data,
 				par = dom.id,
 				chd = [],
@@ -1546,8 +1541,8 @@
 				p = m[par],
 				s = this._data.core.selected.length,
 				tmp, i, j;
-			dat.each($.proxy(function (i, v) {
-				tmp = this._parse_model_from_html($(v), par, p.parents.concat());
+			dat.each(function (i, v) {
+				tmp = inst._parse_model_from_html($(v), par, p.parents.concat());
 				if(tmp) {
 					chd.push(tmp);
 					dpc.push(tmp);
@@ -1555,7 +1550,7 @@
 						dpc = dpc.concat(m[tmp].children_d);
 					}
 				}
-			}, this));
+			});
 			p.children = chd;
 			p.children_d = dpc;
 			for(i = 0, j = p.parents.length; i < j; i++) {
@@ -1955,35 +1950,35 @@
 						cb.call(inst, true);
 					}
 				};
-			if(this.settings.core.worker && window.Blob && window.URL && window.Worker) {
+			if(inst.settings.core.worker && window.Blob && window.URL && window.Worker) {
 				try {
-					if(this._wrk === null) {
-						this._wrk = window.URL.createObjectURL(
+					if(inst._wrk === null) {
+						inst._wrk = window.URL.createObjectURL(
 							new window.Blob(
 								['self.onmessage = ' + func.toString()],
 								{type:"text/javascript"}
 							)
 						);
 					}
-					if(!this._data.core.working || force_processing) {
-						this._data.core.working = true;
-						w = new window.Worker(this._wrk);
-						w.onmessage = $.proxy(function (e) {
-							rslt.call(this, e.data, true);
+					if(!inst._data.core.working || force_processing) {
+						inst._data.core.working = true;
+						w = new window.Worker(inst._wrk);
+						w.onmessage = function (e) {
+							rslt.call(inst, e.data, true);
 							try { w.terminate(); w = null; } catch(ignore) { }
-							if(this._data.core.worker_queue.length) {
-								this._append_json_data.apply(this, this._data.core.worker_queue.shift());
+							if(inst._data.core.worker_queue.length) {
+								inst._append_json_data.apply(inst, inst._data.core.worker_queue.shift());
 							}
 							else {
-								this._data.core.working = false;
+								inst._data.core.working = false;
 							}
-						}, this);
+						};
 						if(!args.par) {
-							if(this._data.core.worker_queue.length) {
-								this._append_json_data.apply(this, this._data.core.worker_queue.shift());
+							if(inst._data.core.worker_queue.length) {
+								inst._append_json_data.apply(inst, inst._data.core.worker_queue.shift());
 							}
 							else {
-								this._data.core.working = false;
+								inst._data.core.working = false;
 							}
 						}
 						else {
@@ -1991,21 +1986,21 @@
 						}
 					}
 					else {
-						this._data.core.worker_queue.push([dom, data, cb, true]);
+						inst._data.core.worker_queue.push([dom, data, cb, true]);
 					}
 				}
 				catch(e) {
-					rslt.call(this, func(args), false);
-					if(this._data.core.worker_queue.length) {
-						this._append_json_data.apply(this, this._data.core.worker_queue.shift());
+					rslt.call(inst, func(args), false);
+					if(inst._data.core.worker_queue.length) {
+						inst._append_json_data.apply(inst, inst._data.core.worker_queue.shift());
 					}
 					else {
-						this._data.core.working = false;
+						inst._data.core.working = false;
 					}
 				}
 			}
 			else {
-				rslt.call(this, func(args), false);
+				rslt.call(inst, func(args), false);
 			}
 		},
 		/**
@@ -2021,6 +2016,7 @@
 			if(!ps) { ps = []; }
 			else { ps = [].concat(ps); }
 			if(p) { ps.unshift(p); }
+			var inst = this;
 			var c, e, m = this._model.data,
 				data = {
 					id			: false,
@@ -2093,14 +2089,14 @@
 			} while(m[tid]);
 			data.id = data.li_attr.id ? data.li_attr.id.toString() : tid;
 			if(tmp.length) {
-				tmp.each($.proxy(function (i, v) {
-					c = this._parse_model_from_html($(v), data.id, ps);
-					e = this._model.data[c];
+				tmp.each(function (i, v) {
+					c = inst._parse_model_from_html($(v), data.id, ps);
+					e = inst._model.data[c];
 					data.children.push(c);
 					if(e.children_d.length) {
 						data.children_d = data.children_d.concat(e.children_d);
 					}
-				}, this));
+				});
 				data.children_d = data.children_d.concat(data.children);
 			}
 			else {
@@ -2422,6 +2418,7 @@
 		 * @param {Boolean} force_render should children of closed parents be drawn anyway
 		 */
 		redraw_node : function (node, deep, is_callback, force_render) {
+			var inst = this;
 			var obj = this.get_node(node),
 				par = false,
 				ind = false,
@@ -2625,9 +2622,9 @@
 			}
 			if(obj.state.opened && !obj.state.loaded) {
 				obj.state.opened = false;
-				setTimeout($.proxy(function () {
-					this.open_node(obj.id, false, 0);
-				}, this), 0);
+				setTimeout(function () {
+					inst.open_node(obj.id, false, 0);
+				}, 0);
 			}
 			return node;
 		},
@@ -2640,6 +2637,7 @@
 		 * @trigger open_node.jstree, after_open.jstree, before_open.jstree
 		 */
 		open_node : function (obj, callback, animation) {
+			var inst = this;
 			var t1, t2, d, t;
 			if($.isArray(obj)) {
 				obj = obj.slice();
@@ -2661,9 +2659,9 @@
 			}
 			if(!this.is_loaded(obj)) {
 				if(this.is_loading(obj)) {
-					return setTimeout($.proxy(function () {
-						this.open_node(obj, callback, animation);
-					}, this), 500);
+					return setTimeout(function () {
+						inst.open_node(obj, callback, animation);
+					}, 500);
 				}
 				this.load_node(obj, function (o, ok) {
 					return ok ? this.open_node(o, callback, animation) : (callback ? callback.call(this, o, false) : false);
@@ -3398,7 +3396,8 @@
 		 * @return {Array}
 		 */
 		get_selected : function (full) {
-			return full ? $.map(this._data.core.selected, $.proxy(function (i) { return this.get_node(i); }, this)) : this._data.core.selected.slice();
+			var inst = this;
+			return full ? $.map(inst._data.core.selected, function (i) { return inst.get_node(i); }) : inst._data.core.selected.slice();
 		},
 		/**
 		 * get an array of all top level selected nodes (ignoring children of selected nodes)
@@ -3407,6 +3406,7 @@
 		 * @return {Array}
 		 */
 		get_top_selected : function (full) {
+			var inst = this;
 			var tmp = this.get_selected(true),
 				obj = {}, i, j, k, l;
 			for(i = 0, j = tmp.length; i < j; i++) {
@@ -3425,7 +3425,7 @@
 					tmp.push(i);
 				}
 			}
-			return full ? $.map(tmp, $.proxy(function (i) { return this.get_node(i); }, this)) : tmp;
+			return full ? $.map(tmp, function (i) { return inst.get_node(i); }) : tmp;
 		},
 		/**
 		 * get an array of all bottom level selected nodes (ignoring selected parents)
@@ -3434,6 +3434,7 @@
 		 * @return {Array}
 		 */
 		get_bottom_selected : function (full) {
+			var inst = this;
 			var tmp = this.get_selected(true),
 				obj = [], i, j;
 			for(i = 0, j = tmp.length; i < j; i++) {
@@ -3441,7 +3442,7 @@
 					obj.push(tmp[i].id);
 				}
 			}
-			return full ? $.map(obj, $.proxy(function (i) { return this.get_node(i); }, this)) : obj;
+			return full ? $.map(obj, function (i) { return inst.get_node(i); }) : obj;
 		},
 		/**
 		 * gets the current state of the tree so that it can be restored later with `set_state(state)`. Used internally.
@@ -3633,15 +3634,16 @@
 		 * @trigger refresh_node.jstree
 		 */
 		refresh_node : function (obj) {
+			var inst = this;
 			obj = this.get_node(obj);
 			if(!obj || obj.id === $.jstree.root) { return false; }
 			var opened = [], to_load = [], s = this._data.core.selected.concat([]);
 			to_load.push(obj.id);
 			if(obj.state.opened === true) { opened.push(obj.id); }
 			this.get_node(obj, true).find('.jstree-open').each(function() { to_load.push(this.id); opened.push(this.id); });
-			this._load_nodes(to_load, $.proxy(function (nodes) {
-				this.open_node(opened, false, 0);
-				this.select_node(s);
+			this._load_nodes(to_load, function (nodes) {
+				inst.open_node(opened, false, 0);
+				inst.select_node(s);
 				/**
 				 * triggered when a node is refreshed
 				 * @event
@@ -3649,8 +3651,8 @@
 				 * @param {Object} node - the refreshed node
 				 * @param {Array} nodes - an array of the IDs of the nodes that were reloaded
 				 */
-				this.trigger('refresh_node', { 'node' : obj, 'nodes' : nodes });
-			}, this), false, true);
+				inst.trigger('refresh_node', { 'node' : obj, 'nodes' : nodes });
+			}, false, true);
 		},
 		/**
 		 * set (change) the ID of a node

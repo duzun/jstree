@@ -293,9 +293,7 @@
 				}
 				tmp.push(obj);
 			}
-			return this._append_json_data(id, tmp, $.proxy(function (status) {
-				callback.call(this, status);
-			}, this));
+			return this._append_json_data(id, tmp, callback);
 		};
 		this._load_node = function (obj, callback) {
 			var id = obj.id;

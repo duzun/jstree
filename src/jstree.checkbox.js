@@ -85,6 +85,7 @@
 	};
 	$.jstree.plugins.checkbox = function (options, parent) {
 		this.bind = function () {
+			var inst = this;
 			parent.bind.call(this);
 			this._data.checkbox.uto = false;
 			this._data.checkbox.selected = [];
@@ -101,40 +102,40 @@
 							this.element.addClass('jstree-checkbox-selection');
 						}
 					}, this))
-				.on("loading.jstree", $.proxy(function () {
-						this[ this._data.checkbox.visible ? 'show_checkboxes' : 'hide_checkboxes' ]();
-					}, this));
+				.on("loading.jstree", function () {
+						inst[ inst._data.checkbox.visible ? 'show_checkboxes' : 'hide_checkboxes' ]();
+					});
 			if(this.settings.checkbox.cascade.indexOf('undetermined') !== -1) {
 				this.element
-					.on('changed.jstree uncheck_node.jstree check_node.jstree uncheck_all.jstree check_all.jstree move_node.jstree copy_node.jstree redraw.jstree open_node.jstree', $.proxy(function () {
+					.on('changed.jstree uncheck_node.jstree check_node.jstree uncheck_all.jstree check_all.jstree move_node.jstree copy_node.jstree redraw.jstree open_node.jstree', function () {
 							// only if undetermined is in setting
-							if(this._data.checkbox.uto) { clearTimeout(this._data.checkbox.uto); }
-							this._data.checkbox.uto = setTimeout($.proxy(this._undetermined, this), 50);
-						}, this));
+							if(inst._data.checkbox.uto) { clearTimeout(inst._data.checkbox.uto); }
+							inst._data.checkbox.uto = setTimeout($.proxy(inst._undetermined, inst), 50);
+						});
 			}
 			if(!this.settings.checkbox.tie_selection) {
 				this.element
-					.on('model.jstree', $.proxy(function (e, data) {
-						var m = this._model.data,
+					.on('model.jstree', function (e, data) {
+						var m = inst._model.data,
 							p = m[data.parent],
 							dpc = data.nodes,
 							i, j;
 						for(i = 0, j = dpc.length; i < j; i++) {
 							m[dpc[i]].state.checked = m[dpc[i]].state.checked || (m[dpc[i]].original && m[dpc[i]].original.state && m[dpc[i]].original.state.checked);
 							if(m[dpc[i]].state.checked) {
-								this._data.checkbox.selected.push(dpc[i]);
+								inst._data.checkbox.selected.push(dpc[i]);
 							}
 						}
-					}, this));
+					});
 			}
 			if(this.settings.checkbox.cascade.indexOf('up') !== -1 || this.settings.checkbox.cascade.indexOf('down') !== -1) {
 				this.element
-					.on('model.jstree', $.proxy(function (e, data) {
-							var m = this._model.data,
+					.on('model.jstree', function (e, data) {
+							var m = inst._model.data,
 								p = m[data.parent],
 								dpc = data.nodes,
 								chd = [],
-								c, i, j, k, l, tmp, s = this.settings.checkbox.cascade, t = this.settings.checkbox.tie_selection;
+								c, i, j, k, l, tmp, s = inst.settings.checkbox.cascade, t = inst.settings.checkbox.tie_selection;
 
 							if(s.indexOf('down') !== -1) {
 								// apply down
@@ -143,7 +144,7 @@
 										m[dpc[i]].state[ t ? 'selected' : 'checked' ] = true;
 									}
 
-									this._data[ t ? 'core' : 'checkbox' ].selected = this._data[ t ? 'core' : 'checkbox' ].selected.concat(dpc);
+									inst._data[ t ? 'core' : 'checkbox' ].selected = inst._data[ t ? 'core' : 'checkbox' ].selected.concat(dpc);
 								}
 								else {
 									for(i = 0, j = dpc.length; i < j; i++) {
@@ -151,7 +152,7 @@
 											for(k = 0, l = m[dpc[i]].children_d.length; k < l; k++) {
 												m[m[dpc[i]].children_d[k]].state[ t ? 'selected' : 'checked' ] = true;
 											}
-											this._data[ t ? 'core' : 'checkbox' ].selected = this._data[ t ? 'core' : 'checkbox' ].selected.concat(m[dpc[i]].children_d);
+											inst._data[ t ? 'core' : 'checkbox' ].selected = inst._data[ t ? 'core' : 'checkbox' ].selected.concat(m[dpc[i]].children_d);
 										}
 									}
 								}
@@ -174,8 +175,8 @@
 										}
 										if(c === j) {
 											p.state[ t ? 'selected' : 'checked' ] = true;
-											this._data[ t ? 'core' : 'checkbox' ].selected.push(p.id);
-											tmp = this.get_node(p, true);
+											inst._data[ t ? 'core' : 'checkbox' ].selected.push(p.id);
+											tmp = inst.get_node(p, true);
 											if(tmp && tmp.length) {
 												tmp.attr('aria-selected', true).children('.jstree-anchor').addClass( t ? 'jstree-clicked' : 'jstree-checked');
 											}
@@ -183,13 +184,13 @@
 										else {
 											break;
 										}
-										p = this.get_node(p.parent);
+										p = inst.get_node(p.parent);
 									}
 								}
 							}
 
-							this._data[ t ? 'core' : 'checkbox' ].selected = $.vakata.array_unique(this._data[ t ? 'core' : 'checkbox' ].selected);
-						}, this))
+							inst._data[ t ? 'core' : 'checkbox' ].selected = $.vakata.array_unique(inst._data[ t ? 'core' : 'checkbox' ].selected);
+						})
 					.on(this.settings.checkbox.tie_selection ? 'select_node.jstree' : 'check_node.jstree', $.proxy(function (e, data) {
 							var self = this,
 								obj = data.node,
@@ -876,8 +877,9 @@
 		 * @plugin checkbox
 		 */
 		this.get_checked = function (full) {
-			if(this.settings.checkbox.tie_selection) { return this.get_selected(full); }
-			return full ? $.map(this._data.checkbox.selected, $.proxy(function (i) { return this.get_node(i); }, this)) : this._data.checkbox.selected.slice();
+			var inst = this;
+			if(inst.settings.checkbox.tie_selection) { return inst.get_selected(full); }
+			return full ? $.map(inst._data.checkbox.selected, function (i) { return inst.get_node(i); }) : inst._data.checkbox.selected.slice();
 		};
 		/**
 		 * get an array of all top level checked nodes (ignoring children of checked nodes) (if tie_selection is on in the settings this function will return the same as get_top_selected)
@@ -888,6 +890,7 @@
 		 */
 		this.get_top_checked = function (full) {
 			if(this.settings.checkbox.tie_selection) { return this.get_top_selected(full); }
+			var inst = this;
 			var tmp = this.get_checked(true),
 				obj = {}, i, j, k, l;
 			for(i = 0, j = tmp.length; i < j; i++) {
@@ -906,7 +909,7 @@
 					tmp.push(i);
 				}
 			}
-			return full ? $.map(tmp, $.proxy(function (i) { return this.get_node(i); }, this)) : tmp;
+			return full ? $.map(tmp, function (i) { return inst.get_node(i); }) : tmp;
 		};
 		/**
 		 * get an array of all bottom level checked nodes (ignoring selected parents) (if tie_selection is on in the settings this function will return the same as get_bottom_selected)
@@ -917,6 +920,7 @@
 		 */
 		this.get_bottom_checked = function (full) {
 			if(this.settings.checkbox.tie_selection) { return this.get_bottom_selected(full); }
+			var inst = this;
 			var tmp = this.get_checked(true),
 				obj = [], i, j;
 			for(i = 0, j = tmp.length; i < j; i++) {
@@ -924,7 +928,7 @@
 					obj.push(tmp[i].id);
 				}
 			}
-			return full ? $.map(obj, $.proxy(function (i) { return this.get_node(i); }, this)) : obj;
+			return full ? $.map(obj, function (i) { return inst.get_node(i); }) : obj;
 		};
 		this.load_node = function (obj, callback) {
 			var k, l, i, j, c, tmp;

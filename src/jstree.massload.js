@@ -45,6 +45,7 @@
 			parent.init.call(this, el, options);
 		};
 		this._load_nodes = function (nodes, callback, is_callback, force_reload) {
+			var inst = this;
 			var s = this.settings.massload,				
 				toLoad = [],
 				m = this._model.data,
@@ -62,23 +63,23 @@
 				this._data.massload = {};
 				if (toLoad.length) {
 					if($.isFunction(s)) {
-						return s.call(this, toLoad, $.proxy(function (data) {
+						return s.call(inst, toLoad, function (data) {
 							var i, j;
 							if(data) {
 								for(i in data) {
 									if(data.hasOwnProperty(i)) {
-										this._data.massload[i] = data[i];
+										inst._data.massload[i] = data[i];
 									}
 								}
 							}
 							for(i = 0, j = nodes.length; i < j; i++) {
-								dom = this.get_node(nodes[i], true);
+								dom = inst.get_node(nodes[i], true);
 								if (dom && dom.length) {
 									dom.removeClass("jstree-loading").attr('aria-busy',false);
 								}
 							}
-							parent._load_nodes.call(this, nodes, callback, is_callback, force_reload);
-						}, this));
+							parent._load_nodes.call(inst, nodes, callback, is_callback, force_reload);
+						});
 					}
 					if(typeof s === 'object' && s && s.url) {
 						s = $.extend(true, {}, s);
@@ -89,30 +90,30 @@
 							s.data = s.data.call(this, toLoad);
 						}
 						return $.ajax(s)
-							.done($.proxy(function (data,t,x) {
+							.done(function (data,t,x) {
 									var i, j;
 									if(data) {
 										for(i in data) {
 											if(data.hasOwnProperty(i)) {
-												this._data.massload[i] = data[i];
+												inst._data.massload[i] = data[i];
 											}
 										}
 									}
 									for(i = 0, j = nodes.length; i < j; i++) {
-										dom = this.get_node(nodes[i], true);
+										dom = inst.get_node(nodes[i], true);
 										if (dom && dom.length) {
 											dom.removeClass("jstree-loading").attr('aria-busy',false);
 										}
 									}
-									parent._load_nodes.call(this, nodes, callback, is_callback, force_reload);
-								}, this))
-							.fail($.proxy(function (f) {
-									parent._load_nodes.call(this, nodes, callback, is_callback, force_reload);
-								}, this));
+									parent._load_nodes.call(inst, nodes, callback, is_callback, force_reload);
+								})
+							.fail(function (f) {
+									parent._load_nodes.call(inst, nodes, callback, is_callback, force_reload);
+								});
 					}
 				}
 			}
-			return parent._load_nodes.call(this, nodes, callback, is_callback, force_reload);
+			return parent._load_nodes.call(inst, nodes, callback, is_callback, force_reload);
 		};
 		this._load_node = function (obj, callback) {
 			var data = this._data.massload[obj.id],
@@ -121,7 +122,7 @@
 				rslt = this[typeof data === 'string' ? '_append_html_data' : '_append_json_data'](
 					obj,
 					typeof data === 'string' ? $($.parseHTML(data)).filter(function () { return this.nodeType !== 3; }) : data,
-					function (status) { callback.call(this, status); }
+					callback
 				);
 				dom = this.get_node(obj.id, true);
 				if (dom && dom.length) {
